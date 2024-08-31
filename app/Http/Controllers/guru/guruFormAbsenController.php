@@ -39,10 +39,7 @@ class guruFormAbsenController extends guruController
 
     public function createAbsen(Request $request)
     {
-        // $created_at = "2024-08-19";
-        // $now = "12:35:00";
-        $now = Carbon::now('Asia/Makassar');
-        // dd(Carbon::parse($now)->format('Y-m-d H:i:s'));
+        $now = Carbon::now('Asia/Makassar')->format('H:i:s');
         $mapel = Mapel::find($request->id_mapel);
         if($now >= $mapel->waktu_mulai && $now <= $mapel->waktu_selesai)
         {
@@ -54,7 +51,6 @@ class guruFormAbsenController extends guruController
                 'id_mapel' => $request->id_mapel,
                 'mapel' => $request->mapel,
                 'id_lokasi' => $request->id_lokasi,
-                // 'created_at' => Carbon::parse($created_at.$now)->format('Y-m-d H:i:s'),
                 'created_at' => Carbon::now('Asia/Makassar'),
             ]);
 

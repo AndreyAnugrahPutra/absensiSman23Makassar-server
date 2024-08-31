@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Models\FormAbsensi;
 use App\Models\Mapel;
 use App\Models\User;
 use Carbon\Carbon;
@@ -112,9 +113,10 @@ class adminMapelController extends adminController
 
     public function deleteDataMapel($id_mapel)
     {
+        $formAbsen = FormAbsensi::where('id_mapel',$id_mapel)->delete();
         $insert = Mapel::destroy($id_mapel);
 
-        if($insert)
+        if($insert || $formAbsen)
         {
             return redirect()->route('admin.mapel.index')->with([
                 'notif_status' => 'success',
