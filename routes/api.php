@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\Api\absenSiswaController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\api\jadwalSiswaController;
-use App\Http\Controllers\api\OrangtuaController;
+use App\Http\Controllers\Api\jadwalSiswaController;
+use App\Http\Controllers\Api\OrangtuaController;
 use App\Http\Resources\apiResource;
 use App\Models\TahunAjar;
 use Illuminate\Http\Request;
