@@ -16,7 +16,7 @@ class GuruJadwalController extends Controller
     public function index()
     {
         $user_id = auth()->user()->user_id;
-        $dataJadwal = Jadwal::join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->where('tb_mapel.id_guru',$user_id)->join('tb_tahun_ajar','tb_jadwal.id_tahun_ajar','tb_tahun_ajar.id_tahun_ajar')->orderBy('hari', 'DESC')->get();
+        $dataJadwal = Jadwal::join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->where('tb_mapel.id_guru',$user_id)->join('tb_tahun_ajar','tb_jadwal.id_tahun_ajar','tb_tahun_ajar.id_tahun_ajar')->orderBy('hari', 'DESC')->orderBy('tb_mapel.waktu_mulai','ASC')->get();
         $dataKelas = Kelas::select('id_kelas','nama_kelas')->get();
         $dataMapel = Mapel::select('id_mapel','nama_mapel','waktu_mulai','waktu_selesai')->get();
         $dataTahunAjar = TahunAjar::select('id_tahun_ajar', 'semester','mulai','selesai')->orderBy('mulai','ASC')->get();  

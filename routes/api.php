@@ -32,7 +32,7 @@ Route::middleware('auth:siswa')->group(function ()
     Route::post('/jadwal/kelas/', [jadwalSiswaController::class, 'show']);
     Route::post('/jadwal/kelas/{Hari}', [jadwalSiswaController::class, 'filterHari']);
 
-    Route::get('/absen/daftar_absen/{id_jadwal}', [absenSiswaController::class, 'formList']);
+    Route::post('/absen/daftar_absen/{id_jadwal}', [absenSiswaController::class, 'formList']);
     Route::get('/absen/data/{email}/{id_jadwal}', [absenSiswaController::class, 'historyAbsensi']);
 
     Route::post('/absen/submit/{id_form}', [absenSiswaController::class, 'store']);

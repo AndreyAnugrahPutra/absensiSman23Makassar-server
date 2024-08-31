@@ -84,7 +84,7 @@ class AuthController extends Controller
                             return new apiResource(true, 'berhasil login', $data);
                         }
                     }
-                    else { return new apiResource($last_logout, 'Gagal Login! Silahkan Login pada waktu '.$last_logout, null); }
+                    else { return new apiResource(true, 'Gagal Login! Silahkan Login pada waktu '.$last_logout, null); }
                 }
                 else
                 {

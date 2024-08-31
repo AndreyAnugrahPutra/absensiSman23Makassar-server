@@ -83,17 +83,20 @@ class absenSiswaController extends Controller
         return new apiResource(true,'Data Absensi Siswa', null);
     }
 
-    public function formList ($id_jadwal)
-    {
+    public function formList ($id_jadwal, Request $req)
+    {   
         $cariAbsen = FormAbsensi::where('id_jadwal', $id_jadwal)->orderBy('created_at','DESC')->first();
+        
+        $siswa = Siswa::where('email',$req->email)->first();
+        $cariAbsenSiswa = Absensi::where('id_form',$cariAbsen->id_form)->where('id_siswa',$siswa->user_id)->first();
 
-        if($cariAbsen !== null)
+        // return new apiResource(true, 'Debugging', $cariAbsenSiswa == null);
+
+        if($cariAbsen !== null && $cariAbsenSiswa == null)
         {
 
             $tgl_sekarang = Carbon::now('Asia/Makassar')->format('Y-m-d');
             $jam_sekarang = Carbon::now('Asia/Makassar')->format('H:i:s');
-            // $tgl_sekarang = '2024-08-08';
-            // $jam_sekarang = '08:15:00';
     
             $tgl_absen_db = Carbon::parse($cariAbsen->created_at)->format('Y-m-d');
             $jam_absen_db = Carbon::parse($cariAbsen->created_at)->format('H:i:s');
@@ -105,7 +108,14 @@ class absenSiswaController extends Controller
                 return new apiResource(true, 'Daftar Absensi', $dataAbsen);
             }
         }
-        return new apiResource(true, 'Absensi belum dibuat!', null);
-        
+        else if($cariAbsen !== null && $cariAbsenSiswa)
+        {
+            return new apiResource(true, 'Anda sudah melakukan absen', null);
+
+        }
+        else 
+        {
+            return new apiResource(true, 'Form absensi belum dibuat!', null);
+        }
     }
 }

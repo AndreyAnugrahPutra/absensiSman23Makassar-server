@@ -6,7 +6,6 @@ use App\Models\FormAbsensi;
 use App\Models\Jadwal;
 use App\Models\LokasiAbsen;
 use App\Models\Mapel;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class guruMapelController extends guruController

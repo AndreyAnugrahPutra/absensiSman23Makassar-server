@@ -62,6 +62,7 @@ const hari = [
     {nama : "Rabu"},
     {nama : "Kamis"},
     {nama : "Jumat"},
+    {nama : "Sabtu"},
 ]
 
 let dataJadwalFix = ref([])

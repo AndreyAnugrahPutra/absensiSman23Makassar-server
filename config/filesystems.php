@@ -28,6 +28,33 @@ return [
     |
     */
 
+    // hostinger config
+    // 'disks' => [
+
+    //     'local' => [
+    //         'driver' => 'local',
+    //         'root' => storage_path('app'),
+    //     ],
+    
+    //     'public' => [
+    //         'driver' => 'local',
+    //         'root' => public_path('storage'),
+    //         'visibility' => 'public',
+    //     ],
+    
+    //     's3' => [
+    //         'driver' => 's3',
+    //         'aws' => [
+    //             'accessKeyId' => env('AWS_ACCESS_KEY_ID'),
+    //             'secretAccessKey' => env('AWS_SECRET_ACCESS_KEY'),
+    //             'region' => env('AWS_DEFAULT_REGION'),
+    //         ],
+    //         'bucket' => env('AWS_S3_BUCKET'),
+    //     ],
+
+    // ],
+
+    // localhost config
     'disks' => [
 
         'local' => [
