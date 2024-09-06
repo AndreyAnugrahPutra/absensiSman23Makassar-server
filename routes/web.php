@@ -1,7 +1,4 @@
 <?php
-
-// use App\Http\Controller\admin\adminController as adminController;
-
 use App\Http\Controllers\admin\adminAbsenController;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\adminGuruController;
@@ -20,10 +17,15 @@ use App\Http\Controllers\guru\guruFormAbsenController;
 use App\Http\Controllers\guru\GuruJadwalController;
 use App\Http\Controllers\guru\GuruKelasController;
 use App\Http\Controllers\guru\guruMapelController;
+use Inertia\Inertia;
 
 Route::middleware('guest')->group(function ()
 {
-    Route::get('/', [Authentication::class, 'loginPage'])->name('login');
+    Route::get('/', function()
+    {
+        return Inertia::render('Welcome');
+    });
+    Route::get('/login', [Authentication::class, 'loginPage'])->name('login');
     Route::post('/login', [Authentication::class, 'login'])->name('user.login');
 });
 
