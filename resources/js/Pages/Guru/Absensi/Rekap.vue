@@ -131,7 +131,6 @@ const exportCSV = () =>
                 <Column field="mapel" sortable header="Mapel" class="min-w-[100px]"></Column>
                 <Column field="waktu_mulai" sortable header="Mulai" class="min-w-[100px]"></Column>
                 <Column field="waktu_selesai" sortable header="Selesai" class="min-w-[100px]"></Column>
-                <Column field="mapel" sortable header="Mapel" class="min-w-[100px]"></Column>
                 <Column field="hadir" sortable header="Hadir" class="min-w-[100px]"/>
                 <Column field="sakit" sortable header="Sakit" class="min-w-[100px]"/>
                 <Column field="izin" sortable header="Izin" class="min-w-[100px]"/>
