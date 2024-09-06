@@ -8,8 +8,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Message from 'primevue/message'
 import InputText from 'primevue/inputtext'
-import ColumnGroup from 'primevue/columngroup'
-import Row from 'primevue/row'
+
 
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
@@ -19,18 +18,16 @@ import { useToast } from "primevue/usetoast"
 
 import {FilterMatchMode} from '@primevue/core/api'
 
-const pageProps = defineProps({dataAbsensi : Array, jumlahStatus : Array, flash : Object, jumlahAlpha : String})
+const pageProps = defineProps({dataAbsensi : Array, flash : Object, idJadwal : String})
 
 onMounted(()=>
 {
-    dataAbsensiFix.value = pageProps.dataAbsensi?.map((p, i) => ({ 
+    dataAbsensiFix.value = pageProps?.dataAbsensi?.map((p, i) => ({ 
         index : i+1, 
         tanggal_dibuat : `${formatDate(p.created_at)}`,
         ...p}))
-    jumlahStatusFix.value = pageProps?.jumlahStatus
     namaKelas.value = pageProps?.dataAbsensi[0]?.kelas
-    jumlahAplhaFix.value = pageProps?.jumlahAlpha
-
+    namaMapel.value = pageProps?.dataAbsensi[0]?.mapel
     checkNotif()
 })
 
@@ -39,8 +36,6 @@ const filters = ref({
 });
 
 const dataAbsensiFix = ref([])
-const jumlahStatusFix = ref([])
-const jumlahAplhaFix = ref(0)
 const toast = useToast();
 const isLoading = ref()
 
@@ -50,6 +45,7 @@ const notif_message = ref(null)
 
 const dt = ref()
 const namaKelas = ref()
+const namaMapel = ref()
 const formatDate = (date) =>
 {
     const newDate = new Date(date)
@@ -63,7 +59,7 @@ const refreshPage = () =>
     setTimeout(()=>
     {
         isLoading.value = false 
-        router.reload() 
+        router.visit(pageProps?.idJadwal) 
     }, 1000)
 }
 
@@ -95,14 +91,13 @@ const checkNotif = () =>
 const exportCSV = () =>
 {
     dt.value.exportCSV()
-    // console.log(dt.value.footerColumngroup)
 }
 </script>
 
 <template>
-    <Head title="Absensi" />
+    <Head title="Rekap Absensi" />
 
-    <GuruLayout pageTitle="Absensi">
+    <GuruLayout pageTitle="Rekap Absensi">
         <template #pageContent>
             <Toast />
             <DataTable v-model:filters="filters" ref="dt" rowGroupMode="subheader" groupRowsBy="dataAbsensiFix.created_at" paginator :rows="10" :value="dataAbsensiFix" removableSort scrollable  size="small" stripedRows tableStyle="min-width: 50rem" class="mt-4">
@@ -112,7 +107,7 @@ const exportCSV = () =>
                             <InputIcon>
                                 <i class="pi pi-search" />
                             </InputIcon>
-                            <InputText v-model="filters['global'].value" placeholder="Cari Data" :disabled="dataAbsensiFix.length < 1" />
+                            <InputText v-model="filters['global'].value" placeholder="Cari Absensi" :disabled="dataAbsensiFix.length < 1" />
                         </IconField>
 
                         <div class="flex items-center gap-x-4">
@@ -121,48 +116,26 @@ const exportCSV = () =>
                         </div>
                     </div>
                     <!-- jumlah kehadiran -->
-                     <span class="text-lg font-bold">KELAS : {{ namaKelas }}</span>
+                     <div class="flex flex-col gap-y-2">
+                         <span class="text-lg font-bold">MATA PELAJARAN : {{ namaMapel }}</span>
+                         <span class="text-lg font-bold">KELAS : {{ namaKelas }}</span>
+                     </div>
                 </template>
                 <template #empty>
                     <Message severity="secondary">Tidak ada data absensi</Message> 
                 </template>
                 <Column field="index" sortable header="No" class="min-w-[80px]"></Column>
-                <Column field="nama_siswa" sortable header="Nama Siswa" class="min-w-[280px]"></Column>
-                <Column field="status" sortable header="Status" class="min-w-[200px]"/>
-                <Column field="deskripsi" sortable header="Deskripsi" class="min-w-[200px]"/>
-                <Column sortable header="Lampiran" class="min-w-[200px]">
-                    <template #body="{data}">
-                        <Button label="Lihat Lampiran" severity="help" size="small" icon="pi pi-eye" iconPos="right" target="_blank" v-if="data.lampiran_path" as="a" :href="data.lampiran_path"/>
-                        <span class="text-gray-400" v-else>Tidak ada lampiran</span>
-                    </template>
-                </Column>
-                <Column field="waktu_absen" sortable header="Waktu Absen" class="min-w-[200px]"/>
-                <!-- <template #groupfooter="{data}">
-                    <div class="flex flex-col justify-center">
-                        <div class="flex flex-col py-4 font-semibold" v-for="statusAbsen in jumlahStatusFix" :key="statusAbsen.index">
-                            <span>{{ statusAbsen.status+' : '+statusAbsen.jumlah }}</span>
-                        </div>
-                        <span class="flex flex-col py-4 font-semibold">{{ 'Alpha : '+jumlahAplhaFix }}</span>
-                    </div>
-                    <span class="font-semibold">Tanggal Absen dibuat : {{ data.tanggal_dibuat }}</span>
-                </template> -->
-                <ColumnGroup type="footer">
-                    <Row v-for="statusAbsen in jumlahStatusFix" :key="statusAbsen.index">
-                        <Column :footer="statusAbsen.status" :colspan="1"/>
-                        <Column :footer="statusAbsen.jumlah" :colspan="5" />
-                    </Row>
-                    <Row>
-                        <Column footer="Alpha" :colspan="1"/>
-                        <Column :footer="jumlahAplhaFix" :colspan="5"/>
-                    </Row>
-                </ColumnGroup>
-                <!-- <Column header="Action" class="min-w-[80px]" frozen alignFrozen="right">
-                    <template #body="{data}">
-                            <NavLink class="border-none p-0 m-0" :href="`form/`+data.id_form">
-                                <Button label="Detail" size="small" icon="pi pi-eye" iconPos="right" severity="success"/>
-                            </NavLink>
-                    </template>
-                </Column> -->
+                <Column field="nisn" sortable header="NISN" class="min-w-[150px]"></Column>
+                <Column field="nama_siswa" sortable header="Nama Siswa" class="min-w-[250px]"></Column>
+                <Column field="kelas" sortable header="Kelas" class="min-w-[100px]"></Column>
+                <Column field="mapel" sortable header="Mapel" class="min-w-[100px]"></Column>
+                <Column field="waktu_mulai" sortable header="Mulai" class="min-w-[100px]"></Column>
+                <Column field="waktu_selesai" sortable header="Selesai" class="min-w-[100px]"></Column>
+                <Column field="mapel" sortable header="Mapel" class="min-w-[100px]"></Column>
+                <Column field="hadir" sortable header="Hadir" class="min-w-[100px]"/>
+                <Column field="sakit" sortable header="Sakit" class="min-w-[100px]"/>
+                <Column field="izin" sortable header="Izin" class="min-w-[100px]"/>
+                <Column field="alpha" sortable header="Alpha" class="min-w-[100px]"/>
             </DataTable>
         </template>
     </GuruLayout>

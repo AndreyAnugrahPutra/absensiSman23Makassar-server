@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\guru;
 
+use App\Models\Absensi;
 use App\Models\FormAbsensi;
 use App\Models\Jadwal;
 use App\Models\LokasiAbsen;
 use App\Models\Mapel;
+use App\Models\Siswa;
 use Inertia\Inertia;
 
 class guruMapelController extends guruController

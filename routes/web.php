@@ -102,6 +102,7 @@ Route::middleware('auth', 'isGuru')->group(function()
 
     Route::get('/guru/mapel/absensi/{id_form}', [guruFormAbsenController::class, 'daftarAbsen'])->name('guru.absen.form');
     Route::post('/guru/mapel/absensi/{id_form}/delete', [guruFormAbsenController::class, 'deleteFormAbsen']);
+    Route::get('/guru/mapel/absensi/rekap/{id_jadwal}', [guruFormAbsenController::class, 'rekapAbsensi'])->name('guru.absen.form');
 
     Route::get('/guru/absensi/daftar_absen/{id_form}/view', [GuruAbsenController::class, 'viewAbsen'])->name('guru.absensi.view');
     Route::get('/guru/jadwal/', [GuruJadwalController::class, 'index'])->name('guru.jadwal.index');

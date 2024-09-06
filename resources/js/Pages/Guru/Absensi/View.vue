@@ -94,7 +94,7 @@ const exportCSV = () =>
                 <Column field="index" sortable header="No" class="min-w-[80px]" />
                 <Column field="induk" sortable header="Induk" class="min-w-[50px]" />
                 <Column field="nisn" sortable header="NISN" class="min-w-[50px]" />
-                <Column field="nama_siswa" sortable header="Nama" class="min-w-[200px]" />
+                <Column field="nama_siswa" sortable header="Nama" class="min-w-[240px]" />
                 <Column field="status" sortable header="Status" class="min-w-[100px]" />
                 <Column sortable header="Deskripsi" class="min-w-[100px]">
                     <template #body="{data}">

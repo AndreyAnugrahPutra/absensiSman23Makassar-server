@@ -23,7 +23,7 @@ import { useToast } from "primevue/usetoast"
 
 const pageProps = defineProps({dataFormAbsen : Array, dataJadwal : Array, dataLokasi : Array, flash : Object})
 
-onMounted(()=>
+onMounted(() =>
 {
     dataFormAbsenFix.value = pageProps?.dataFormAbsen?.map((p, i) => ({ 
         index : i+1,
@@ -137,9 +137,10 @@ const uploadFormAbsensi = () =>
             <Toast />
             <ConfirmDialog />
             <div class="flex justify-between items-center">
-                <Button label="Tambah Form Absensi" size="small" icon="pi pi-plus" @click="uploadFormAbsensi" />
+                <Button label="Tambah Form Absensi" size="small" icon="pi pi-plus" @click="uploadFormAbsensi"/>
                 <Button :loading="refreshLoading" size="small" icon="pi pi-refresh" @click="refreshPage" severity="secondary" />
             </div>
+            <Button as="a" :href="`absensi/rekap/${pageProps?.dataJadwal[0]['id_jadwal']}`" class="mt-4" severity="help" label="Rekap Data" @click="" size="small"/>
             <DataTable v-model:filters="filters" ref="dt" paginator :rows="10" :value="dataFormAbsenFix" removableSort scrollable  size="small" stripedRows tableStyle="min-width: 50rem" class="mt-4">
                 <template #header>
                     <div class="flex mb-5">

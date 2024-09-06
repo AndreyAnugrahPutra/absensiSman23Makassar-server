@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\apiResource;
 use App\Models\Absensi;
 use App\Models\FormAbsensi;
+use App\Models\Jadwal;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Faker\Provider\Uuid;
@@ -30,6 +31,7 @@ class absenSiswaController extends Controller
         ]);
 
         $siswa = Siswa::where('email', $absensiData['email'])->first();
+        $jadwal = Jadwal::where('id_form',$id_form)->first(); 
 
         if($request->hasFile('lampiran'))
         {
@@ -53,6 +55,7 @@ class absenSiswaController extends Controller
         $insert = Absensi::create([
             'id_absensi' => Uuid::uuid(),
             'id_form' => $id_form,
+            'id_jadwal' => $jadwal->id_jadwal,
             'id_siswa' => $siswa->user_id,
             'nama_siswa' => $siswa->nama,
             'lampiran_file' => $fileName,

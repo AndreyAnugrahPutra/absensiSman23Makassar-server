@@ -25,7 +25,7 @@ class Siswa extends Authenticatable implements JWTSubject
 
     public function absensi()
     {
-        return $this->hasMany(Absensi::class);
+        return $this->hasMany(Absensi::class,'id_siswa', 'user_id');
     }
     public function kelas()
     {
