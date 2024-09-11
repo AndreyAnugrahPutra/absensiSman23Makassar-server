@@ -7,6 +7,7 @@ use App\Http\Resources\apiResource;
 use App\Models\Absensi;
 use App\Models\FormAbsensi;
 use App\Models\Jadwal;
+use App\Models\Mapel;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Faker\Provider\Uuid;
@@ -75,12 +76,44 @@ class absenSiswaController extends Controller
     public function historyAbsensi(string $email, $id_jadwal)
     {
         //
+        $jadwal = Jadwal::where('id_jadwal',$id_jadwal)->first();
         $siswa = Siswa::where('email',$email)->first();
-        $dataAbsensi = FormAbsensi::where('tb_form_absen.id_jadwal',$id_jadwal)->join('tb_absensi','tb_form_absen.id_jadwal','=','tb_absensi.id_jadwal')->join('tb_mapel','tb_form_absen.id_mapel','=','tb_mapel.id_mapel')->select('tb_absensi.nama_siswa','tb_absensi.lampiran_file','tb_absensi.lampiran_path','tb_absensi.status','tb_absensi.waktu_absen','tb_absensi.created_at','tb_absensi.deskripsi','tb_mapel.nama_mapel','tb_mapel.nama_guru','tb_form_absen.kelas')->where('tb_absensi.id_siswa',$siswa->user_id)->orderBy('tb_absensi.created_at','DESC')->get();
+        $absensi = Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$siswa->user_id)->orderBy('tb_absensi.created_at','DESC')->get();
+        $mapel = Mapel::where('id_mapel',$jadwal->id_mapel)->first();
+        $dataAbsensi = [];
 
-        if($dataAbsensi->count() > 0)
+        $jmlHadir = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$siswa->user_id)->where('status','Hadir')->get());
+        $jmlSakit = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$siswa->user_id)->where('status','Sakit')->get());
+        $jmlIzin = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$siswa->user_id)->where('status','Izin')->get());
+        $alphaSiswa = $jmlHadir + $jmlIzin + $jmlSakit;
+        $jmlAlpha = count(FormAbsensi::where('id_jadwal',$id_jadwal)->get()) - $alphaSiswa;
+
+        foreach($absensi as $s)
         {
-            return new apiResource(true,'Data Absensi Siswa', $dataAbsensi);
+            $data['mapel'] = $mapel->nama_mapel;
+            $data['guru'] = $mapel->nama_guru;
+            $data['kelas'] = $jadwal->kelas;
+
+            if(count($absensi) > 0)
+            {
+                $data['created_at'] = Carbon::parse($s->created_at)->format('Y-m-d H:i:s');
+                $data['waktu_absen'] = $s->waktu_absen;
+                $data['lampiran'] = $s->lampiran_path;
+                $data['status'] = $s->status;
+                $data['deskripsi'] = $s->deskripsi;
+            }
+            $dataAbsensi[] = $data;
+        }
+        $statistikAbsensi = [
+            ['Status' => 'Hadir', 'Jumlah' => $jmlHadir],
+            ['Status' => 'Sakit', 'Jumlah' => $jmlSakit],
+            ['Status' => 'Izin', 'Jumlah' => $jmlIzin],
+            ['Status' => 'Alpha', 'Jumlah' => $jmlAlpha],
+        ];  
+
+        if(count($dataAbsensi) > 0 )
+        {
+            return new apiResource(true,'Data Absensi Siswa', [$dataAbsensi, $statistikAbsensi]);
         }
 
         return new apiResource(true,'Data Absensi Siswa', null);
@@ -92,8 +125,6 @@ class absenSiswaController extends Controller
         
         $siswa = Siswa::where('email',$req->email)->first();
         $cariAbsenSiswa = Absensi::where('id_form',$cariAbsen->id_form)->where('id_siswa',$siswa->user_id)->first();
-
-        // return new apiResource(true, 'Debugging', $cariAbsenSiswa == null);
 
         if($cariAbsen !== null && $cariAbsenSiswa == null)
         {

@@ -8,6 +8,7 @@ use App\Models\Absensi;
 use App\Models\FormAbsensi;
 use App\Models\Jadwal;
 use App\Models\Kelas;
+use App\Models\Mapel;
 use App\Models\Orangtua;
 use App\Models\Siswa;
 
@@ -28,13 +29,11 @@ class OrangtuaController extends Controller
         {    
             return new apiResource(false, 'data anak', null);
         }
-
-        // $anak = Siswa::where('');
     }
 
     public function jadwalAnak($id_kelas)
     {
-        $dataKelas = Kelas::where('tb_kelas.id_kelas', $id_kelas)->join('tb_jadwal','tb_kelas.id_kelas','=','tb_jadwal.id_kelas')->join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->select('tb_jadwal.hari','tb_mapel.nama_mapel', 'tb_jadwal.id_jadwal','tb_mapel.nama_guru','tb_mapel.waktu_mulai','tb_mapel.waktu_selesai','tb_kelas.*')->orderBy('tb_jadwal.hari','DESC')->get();
+        $dataKelas = Kelas::where('tb_kelas.id_kelas', $id_kelas)->join('tb_jadwal','tb_kelas.id_kelas','=','tb_jadwal.id_kelas')->join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->select('tb_jadwal.hari','tb_mapel.nama_mapel', 'tb_jadwal.id_jadwal','tb_mapel.nama_guru','tb_mapel.waktu_mulai','tb_mapel.waktu_selesai','tb_kelas.*')->orderBy('tb_jadwal.hari','DESC')->orderBy('tb_mapel.waktu_mulai')->get();
 
         if(!$dataKelas)
         {
@@ -45,7 +44,13 @@ class OrangtuaController extends Controller
     
     public function absenAnak($id_jadwal,$id_anak)
     {
-        $dataAbsen = FormAbsensi::where('tb_form_absen.id_jadwal',$id_jadwal)->join('tb_absensi','tb_form_absen.id_form','=','tb_absensi.id_form')->join('tb_mapel','tb_form_absen.id_mapel','=','tb_mapel.id_mapel')->select('tb_absensi.id_form','tb_absensi.nama_siswa','tb_absensi.lampiran_file','tb_absensi.lampiran_path','tb_absensi.status','tb_absensi.waktu_absen','tb_absensi.created_at','tb_absensi.deskripsi','tb_mapel.nama_mapel','tb_mapel.nama_guru','tb_form_absen.kelas')->where('tb_absensi.id_siswa',$id_anak)->get();
+        $dataAbsen = FormAbsensi::where('tb_form_absen.id_jadwal',$id_jadwal)->join('tb_absensi','tb_form_absen.id_form','=','tb_absensi.id_form')->join('tb_mapel','tb_form_absen.id_mapel','=','tb_mapel.id_mapel')->select('tb_absensi.id_form','tb_absensi.nama_siswa','tb_absensi.lampiran_file','tb_absensi.lampiran_path','tb_absensi.status','tb_absensi.waktu_absen','tb_absensi.created_at','tb_absensi.deskripsi','tb_mapel.nama_mapel','tb_mapel.nama_guru','tb_form_absen.kelas')->where('tb_absensi.id_siswa',$id_anak)->orderBy('tb_absensi.created_at','ASC')->get();
+
+        $jmlHadir = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$id_anak)->where('status','Hadir')->get());
+        $jmlSakit = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$id_anak)->where('status','Sakit')->get());
+        $jmlIzin = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$id_anak)->where('status','Izin')->get());
+        $alphaSiswa = $jmlHadir + $jmlIzin + $jmlSakit;
+        $jmlAlpha = count(FormAbsensi::where('id_jadwal',$id_jadwal)->get()) - $alphaSiswa;
 
         $jadwal = Jadwal::where('id_jadwal',$id_jadwal)->join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->select('nama_guru','nama_mapel')->get();
         
@@ -54,9 +59,14 @@ class OrangtuaController extends Controller
             return new apiResource(true, 'data absen anak', [null,$jadwal]);
         }
 
-        $jumlahStatus = Absensi::where('id_form', $dataAbsen[0]['id_form'])->where('id_siswa',$id_anak)->groupBy('status')->selectRaw('status, count(*) as jumlah')->get();  
+        $statistikAbsensi = [
+            ['Status' => 'Hadir', 'Jumlah' => $jmlHadir],
+            ['Status' => 'Sakit', 'Jumlah' => $jmlSakit],
+            ['Status' => 'Izin', 'Jumlah' => $jmlIzin],
+            ['Status' => 'Alpha', 'Jumlah' => $jmlAlpha],
+        ];  
 
-        return new apiResource(true, 'data absen anak', [$dataAbsen, $jadwal, $jumlahStatus]);
+        return new apiResource(true, 'data absen anak', [$dataAbsen, $jadwal, $statistikAbsensi]);
 
     }
 }
