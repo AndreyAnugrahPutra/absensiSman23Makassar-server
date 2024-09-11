@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Faker\Provider\Uuid;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -17,13 +16,13 @@ class formSeeder extends Seeder
         //
         DB::table('tb_form_absen')->insert([
             'id_form' => Uuid::uuid(),
-            'id_jadwal' => '8582aa9d-c646-3890-a623-c629dc121ab2',
-            'id_kelas' => '6b3f1f1d-8aeb-3094-a4a9-618d6c85ac87',
-            'kelas' => 'XI IPS 1',
-            'id_mapel' => '533caa79-7ca6-3733-9133-c2bf46e5d452',
-            'mapel' => 'GEO',
+            'id_jadwal' => 'de0d2d1a-8143-3716-a396-3d81b8be5a87',
+            'id_kelas' => '14fedc2f-591f-3005-9585-008927645f0a',
+            'kelas' => 'XI MIPA 1',
+            'id_mapel' => '6d68036e-5368-3cc4-88dc-ef7d2921b2e2',
+            'mapel' => 'PJOK',
             'id_lokasi' => '9e724d81-504e-342d-8c35-82734f9896da',
-            'created_at' => '2024-09-06 11:30:24',
+            'created_at' => '2024-03-06 12:35:15',
         ]);
     }
 }

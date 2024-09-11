@@ -31,6 +31,7 @@ class adminSiswaController extends adminController
          'dataOrangtua' => $dataOrangtua
         ]);
     }
+
     public function viewDataSiswa($user_id)
     {
         $dataSiswa = Siswa::select('user_id','induk','nisn','nama','tgl_lahir','jkel','email','no_telp','foto_profil','foto_path')->where('user_id', $user_id)->get();
@@ -42,8 +43,13 @@ class adminSiswaController extends adminController
             'dataOrangtua' => $dataOrangtua
         ]);
     }
+
     public function createDataSiswa(Request $request)
     {
+        $file = NULL;
+        $fileName = NULL;
+        $linkFile = NULL;
+
         $request->validate([
             'induk' => 'required|unique:tb_siswa',
             'nisn' => 'required|unique:tb_siswa',
@@ -56,10 +62,6 @@ class adminSiswaController extends adminController
             'level' => 'required',
         ]);
 
-        $file = NULL;
-        $fileName = NULL;
-        $linkFile = NULL;
-
         if($request->hasFile('foto_profil'))
         {
             $file = $request->file('foto_profil');
@@ -68,13 +70,8 @@ class adminSiswaController extends adminController
             $extension = $file->getClientOriginalExtension();
             $fileName = $filename.'-'.Carbon::now('Asia/Makassar')->format('Y-m-d').'.'.$extension;
             $path = 'upload/siswa/foto_profil/'.$fileName;
-
+            $linkFile = Storage::url($path);
             $insertFile = Storage::disk('public')->put($path, file_get_contents($file));
-
-            if($insertFile)
-            {
-                $linkFile = Storage::url($path);
-            }
         }
 
         $insert = Siswa::create([

@@ -13,12 +13,11 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:siswa');
 
-Route::get('/testApi', function ()
-{
-    return response()->json('PANGGIL API BERHASIL!');
-});
+// Route::get('/testApi', function ()
+// {
+//     return new apiResource(true, 'Hello World', ['Hello','World']);
+// });
 
-Route::post('/refreshUserToken', [AuthController::class, 'refreshJWT']);
 
 Route::middleware('auth:siswa')->group(function ()
 {

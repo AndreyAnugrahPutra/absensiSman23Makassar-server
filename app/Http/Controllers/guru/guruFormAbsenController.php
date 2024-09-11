@@ -13,8 +13,6 @@ use Faker\Provider\Uuid;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-use function Laravel\Prompts\select;
-
 class guruFormAbsenController extends guruController
 {
     //
@@ -25,9 +23,10 @@ class guruFormAbsenController extends guruController
 
     public function daftarAbsen($id_form)
     {
-        $id_kelas = FormAbsensi::where('id_form', $id_form)->select('id_kelas','created_at')->first();
-        $nama_kelas = Kelas::where('id_kelas',$id_kelas->id_kelas)->select('nama_kelas')->get();
+        $id_kelas = FormAbsensi::where('id_form', $id_form)->first();
+        $nama_kelas = Kelas::where('id_kelas',$id_kelas->id_kelas)->select('nama_kelas','nama_wali_kelas')->first();
         $dataAbsensi = Siswa::where('id_kelas', $id_kelas->id_kelas)->orderBy('nama','ASC')->get();
+        $mapel = Mapel::where('id_mapel',$id_kelas->id_mapel)->first();
 
         $newData = [];
         $alpha = 0;
@@ -50,14 +49,22 @@ class guruFormAbsenController extends guruController
             }
             $data['nama_siswa'] = $d->nama;
             $data['tanggal_dibuat'] = $id_kelas->created_at;
-            $data['kelas'] = $nama_kelas[0]['nama_kelas'];
             $newData[] = $data;
         }
+
         $jumlahStatus = Absensi::where('id_form', $id_form)->groupBy('status')->selectRaw('status, count(*) as jumlah')->get();
-        // $dataAbsensi = Absensi::where('tb_absensi.id_form',$id_form)->join('tb_form_absen','tb_absensi.id_form','=','tb_form_absen.id_form')->select('tb_form_absen.kelas','tb_absensi.*')->orderBy('nama_siswa','ASC')->get();
 
 
         return Inertia::render('Guru/Mapel/Absensi', [
+            'dataMapel' => [
+                'namaMapel' => $mapel->nama_mapel,
+                'namaGuru' => $mapel->nama_guru,
+            ],
+            'dataKelas' => [
+                'namaKelas' => $nama_kelas->nama_kelas,
+                'waliKelas' => $nama_kelas->nama_wali_kelas,
+            ],
+            'idForm' => $id_form,
             'dataAbsensi' => $newData,
             'jumlahStatus' => $jumlahStatus,
             'jumlahAlpha' => (string) $alpha,
@@ -68,10 +75,14 @@ class guruFormAbsenController extends guruController
     {
         $jadwal = Jadwal::where('id_jadwal', $id_jadwal)->select('id_kelas','id_mapel','mapel')->first();
         $mapel = Mapel::where('id_mapel',$jadwal->id_mapel)->first();
-        $nama_kelas = Kelas::where('id_kelas',$jadwal->id_kelas)->select('nama_kelas')->first();
+        $nama_kelas = Kelas::where('id_kelas',$jadwal->id_kelas)->select('nama_kelas','nama_wali_kelas')->first();
         $siswa = Siswa::where('id_kelas', $jadwal->id_kelas)->orderBy('nama','ASC')->get();
         $newData = [];
 
+        $jmlHadir = 0;
+        $jmlSakit = 0;
+        $jmlIzin = 0;
+        $jmlAlpha = 0;
         $index = 0;
 
         foreach($siswa as $s)
@@ -80,9 +91,20 @@ class guruFormAbsenController extends guruController
             if(count($data['absensi']) > 0)
             {
                 $data['hadir'] = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$s->user_id)->where('status','Hadir')->get());
+                $jmlHadir = count(Absensi::where('id_jadwal',$id_jadwal)->where('status','Hadir')->get());
+                
                 $data['sakit'] = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$s->user_id)->where('status','Sakit')->get());
+                $jmlSakit = count(Absensi::where('id_jadwal',$id_jadwal)->where('status','Sakit')->get());
+
                 $data['izin'] = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$s->user_id)->where('status','Izin')->get());
-                $data['alpha'] = count(Absensi::where('id_jadwal',$id_jadwal)->where('id_siswa',$s->user_id)->where('status',NULL)->get());
+                $jmlIzin = count(Absensi::where('id_jadwal',$id_jadwal)->where('status','Izin')->get());
+                
+                $alphaSiswa = $data['hadir'] + $data['sakit'] + $data['izin'];
+
+                $data['alpha'] = count(FormAbsensi::where('id_jadwal',$id_jadwal)->get()) - $alphaSiswa;
+
+                if($data['alpha'] > 0 ) { $jmlAlpha++; }
+                
             }
             else
             {
@@ -90,11 +112,13 @@ class guruFormAbsenController extends guruController
                 $data['alpha'] = 0;
                 $data['izin'] = 0;
                 $data['sakit'] = 0;
+                $jmlAlpha++;
             }
+
             $data['nisn'] = $s->nisn;
             $data['nama_siswa'] = $s->nama;
             $data['kelas'] = $nama_kelas->nama_kelas;
-            $data['mapel'] = $jadwal->mapel;
+            $data['mapel'] = $mapel->nama_mapel;
             $data['waktu_mulai'] = $mapel->waktu_mulai;
             $data['waktu_selesai'] = $mapel->waktu_selesai;
             $index++;
@@ -102,15 +126,42 @@ class guruFormAbsenController extends guruController
         }
         return Inertia::render('Guru/Absensi/Rekap', [
             'dataAbsensi' => $newData,
+            'kelas' => [
+                'namaKelas' => $nama_kelas->nama_kelas,
+                'waliKelas' => $nama_kelas->nama_wali_kelas,
+            ],
+            'mapel' => 
+            [
+                'namaMapel' => $mapel->nama_mapel,
+                'namaGuru' => $mapel->nama_guru,
+            ],
             'idJadwal' => $id_jadwal,
+            'statistikAbsen' => [
+                'Hadir' => (string) $jmlHadir, 
+                'Sakit' => (string) $jmlSakit, 
+                'Izin' => (string) $jmlIzin,
+                'Alpha' => (string) $jmlAlpha,
+            ],
         ]);
     }
 
     public function createAbsen(Request $request)
     {
         $now = Carbon::now('Asia/Makassar')->format('H:i:s');
+        $nowDate = Carbon::now('Asia/Makassar')->format('Y-m-d');
         $mapel = Mapel::find($request->id_mapel);
-        if ($now >= $mapel->waktu_mulai && $now <= $mapel->waktu_selesai) {
+        $formAbsen = FormAbsensi::where('id_mapel',$request->id_mapel)->first();
+
+        if($nowDate == Carbon::parse($formAbsen->created_at)->format('Y-m-d'))
+        {
+            return back()->with([
+                'notif_status' => 'failed',
+                'message' => 'Form absensi sudah dibuat!',
+                'notif_show' => true,
+            ]);
+        }
+        else if($now >= $mapel->waktu_mulai && $now <= $mapel->waktu_selesai) 
+        {
             $insert = FormAbsensi::create([
                 'id_form' => Uuid::uuid(),
                 'id_jadwal' => $request->id_jadwal,
@@ -129,13 +180,15 @@ class guruFormAbsenController extends guruController
                     'notif_show' => true,
                 ]);
             } else {
-                return redirect()->route('guru.mapel.index')->with([
+                return back()->with([
                     'notif_status' => 'failed',
                     'message' => 'Form Absensi gagal dibuat!',
                     'notif_show' => true,
                 ]);
             }
-        } else {
+        } 
+        else 
+        {
             return back()->with([
                 'notif_status' => 'failed',
                 'message' => 'Gagal membuat form absen! Jam pelajaran belum dimulai!',

@@ -17,7 +17,8 @@ class adminJadwalController extends Controller
     //
     public function indexPage()
     {
-        $dataJadwal = Jadwal::join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->join('tb_tahun_ajar','tb_jadwal.id_tahun_ajar','tb_tahun_ajar.id_tahun_ajar')->orderBy('hari', 'DESC')->orderBy('waktu_mulai','ASC')->get();
+        $tahunAjarActive = TahunAjar::where('is_active',1)->first();
+        $dataJadwal = Jadwal::where('tb_jadwal.id_tahun_ajar', $tahunAjarActive->id_tahun_ajar)->join('tb_mapel','tb_jadwal.id_mapel','=','tb_mapel.id_mapel')->join('tb_tahun_ajar','tb_jadwal.id_tahun_ajar','tb_tahun_ajar.id_tahun_ajar')->orderBy('hari', 'DESC')->orderBy('waktu_mulai','ASC')->get();
         $dataKelas = Kelas::select('id_kelas','nama_kelas')->get();
         $dataMapel = Mapel::select('id_mapel','nama_mapel','waktu_mulai','waktu_selesai','nama_guru')->get();
         $dataTahunAjar = TahunAjar::select('id_tahun_ajar', 'semester','mulai','selesai')->orderBy('mulai','ASC')->get();  

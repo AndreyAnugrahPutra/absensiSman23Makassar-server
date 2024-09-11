@@ -19,7 +19,7 @@ import { useToast } from "primevue/usetoast"
 
 import {FilterMatchMode} from '@primevue/core/api'
 
-const pageProps = defineProps({dataAbsensi : Array, jumlahStatus : Array, flash : Object, jumlahAlpha : String})
+const pageProps = defineProps({idForm : String, dataAbsensi : Array, dataMapel : Object, dataKelas : Object, jumlahStatus : Array, flash : Object, jumlahAlpha : String})
 
 onMounted(()=>
 {
@@ -28,7 +28,6 @@ onMounted(()=>
         tanggal_dibuat : `${formatDate(p.created_at)}`,
         ...p}))
     jumlahStatusFix.value = pageProps?.jumlahStatus
-    namaKelas.value = pageProps?.dataAbsensi[0]?.kelas
     jumlahAplhaFix.value = pageProps?.jumlahAlpha
 
     checkNotif()
@@ -49,7 +48,6 @@ const notif_status = ref(null)
 const notif_message = ref(null)
 
 const dt = ref()
-const namaKelas = ref()
 const formatDate = (date) =>
 {
     const newDate = new Date(date)
@@ -63,7 +61,7 @@ const refreshPage = () =>
     setTimeout(()=>
     {
         isLoading.value = false 
-        router.reload() 
+        router.visit(pageProps?.idForm) 
     }, 1000)
 }
 
@@ -95,7 +93,6 @@ const checkNotif = () =>
 const exportCSV = () =>
 {
     dt.value.exportCSV()
-    // console.log(dt.value.footerColumngroup)
 }
 </script>
 
@@ -105,7 +102,7 @@ const exportCSV = () =>
     <GuruLayout pageTitle="Absensi">
         <template #pageContent>
             <Toast />
-            <DataTable v-model:filters="filters" ref="dt" rowGroupMode="subheader" groupRowsBy="dataAbsensiFix.created_at" paginator :rows="10" :value="dataAbsensiFix" removableSort scrollable  size="small" stripedRows tableStyle="min-width: 50rem" class="mt-4">
+            <DataTable v-model:filters="filters" ref="dt" rowGroupMode="subheader" groupRowsBy="dataAbsensiFix.created_at" paginator :rows="35" :value="dataAbsensiFix" removableSort scrollable  size="small" stripedRows tableStyle="min-width: 50rem" class="mt-4">
                 <template #header>
                     <div class="flex justify-between items-center mb-5">
                         <IconField>
@@ -121,7 +118,10 @@ const exportCSV = () =>
                         </div>
                     </div>
                     <!-- jumlah kehadiran -->
-                     <span class="text-lg font-bold">KELAS : {{ namaKelas }}</span>
+                     <span class="font-semibold">MATA PELAJARAN : {{ pageProps?.dataMapel?.namaMapel }}</span><br>
+                     <span class="font-semibold">GURU : {{ pageProps?.dataMapel?.namaGuru }}</span><br>
+                     <span class="font-semibold">KELAS : {{ pageProps?.dataKelas?.namaKelas }}</span><br>
+                     <span class="font-semibold">WALI KELAS : {{ pageProps?.dataKelas?.waliKelas }}</span>
                 </template>
                 <template #empty>
                     <Message severity="secondary">Tidak ada data absensi</Message> 
@@ -137,15 +137,6 @@ const exportCSV = () =>
                     </template>
                 </Column>
                 <Column field="waktu_absen" sortable header="Waktu Absen" class="min-w-[200px]"/>
-                <!-- <template #groupfooter="{data}">
-                    <div class="flex flex-col justify-center">
-                        <div class="flex flex-col py-4 font-semibold" v-for="statusAbsen in jumlahStatusFix" :key="statusAbsen.index">
-                            <span>{{ statusAbsen.status+' : '+statusAbsen.jumlah }}</span>
-                        </div>
-                        <span class="flex flex-col py-4 font-semibold">{{ 'Alpha : '+jumlahAplhaFix }}</span>
-                    </div>
-                    <span class="font-semibold">Tanggal Absen dibuat : {{ data.tanggal_dibuat }}</span>
-                </template> -->
                 <ColumnGroup type="footer">
                     <Row v-for="statusAbsen in jumlahStatusFix" :key="statusAbsen.index">
                         <Column :footer="statusAbsen.status" :colspan="1"/>
@@ -156,13 +147,6 @@ const exportCSV = () =>
                         <Column :footer="jumlahAplhaFix" :colspan="5"/>
                     </Row>
                 </ColumnGroup>
-                <!-- <Column header="Action" class="min-w-[80px]" frozen alignFrozen="right">
-                    <template #body="{data}">
-                            <NavLink class="border-none p-0 m-0" :href="`form/`+data.id_form">
-                                <Button label="Detail" size="small" icon="pi pi-eye" iconPos="right" severity="success"/>
-                            </NavLink>
-                    </template>
-                </Column> -->
             </DataTable>
         </template>
     </GuruLayout>

@@ -29,21 +29,6 @@ class AuthController extends Controller
         return response()->json('oke');
     }
 
-    public function refreshJWT(Request $request)
-    {
-        $userToken = $request->token;
-
-        try 
-        {
-            $token = JWTAuth::refresh($userToken);
-            return new apiResource(true, 'Berhasil Refresh Token!', $token);
-        }
-        catch(JWTException $e) 
-        {
-            return new apiResource(true, 'Gagal refresh token :(!', $e);
-        }
-    }
-
     public function login(Request $request)
     {
         $credentials = $request->validate([

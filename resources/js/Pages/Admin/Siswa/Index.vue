@@ -138,9 +138,11 @@ const exportCSV = () =>
 const uploadFoto = (event) => {
 
     form.foto_profil = event.files[0]
+
     if(form.foto_profil)
     {
         toast.add({ severity: 'info', summary: 'Info', detail: 'foto terupload!', life: 2000, group : 'center' });
+        console.log(form.foto_profil)
     }
 
 };
@@ -156,7 +158,7 @@ const uploadDatasiswa = () =>
 </script>
 
 <template>
-    <Head title="Siswa" />
+    <Head title="Siswa"/>
 
     <AdminLayout pageTitle="Siswa">
         <template #pageContent>
@@ -230,7 +232,7 @@ const uploadDatasiswa = () =>
                         <span class="text-red-400 my-4" v-if="form.hasErrors">{{ form.errors.foto_profil }}</span>
                         <div class="flex items-center gap-4 mb-8">
                             <label for="foto_profil" class="font-semibold w-36">Foto Profil</label>
-                            <FileUpload id="foto_profil" name="demo[]" accept="image/*" :maxFileSize="1000000" customUpload @uploader="uploadFoto($event)" :disabled="form.foto_profil" show-upload-button/>
+                            <FileUpload id="foto_profil" name="demo[]" accept="image/*" :maxFileSize="1000000" customUpload @uploader="uploadFoto($event)" :disabled="form.foto_profil ? true : false" show-upload-button/>
                         </div>
                         <div class="flex justify-end gap-2">
                             <slot name="closeModal"/>

@@ -6,6 +6,8 @@ import GuruLayout from '@/Layouts/Guru/GuruLayout.vue'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import ColumnGroup from 'primevue/columngroup'
+import Row from 'primevue/row'
 import Message from 'primevue/message'
 import InputText from 'primevue/inputtext'
 
@@ -18,7 +20,7 @@ import { useToast } from "primevue/usetoast"
 
 import {FilterMatchMode} from '@primevue/core/api'
 
-const pageProps = defineProps({dataAbsensi : Array, flash : Object, idJadwal : String})
+const pageProps = defineProps({dataAbsensi : Array, flash : Object, idJadwal : String, mapel : Object, statistikAbsen : Object, kelas : Object})
 
 onMounted(()=>
 {
@@ -100,7 +102,7 @@ const exportCSV = () =>
     <GuruLayout pageTitle="Rekap Absensi">
         <template #pageContent>
             <Toast />
-            <DataTable v-model:filters="filters" ref="dt" rowGroupMode="subheader" groupRowsBy="dataAbsensiFix.created_at" paginator :rows="10" :value="dataAbsensiFix" removableSort scrollable  size="small" stripedRows tableStyle="min-width: 50rem" class="mt-4">
+            <DataTable v-model:filters="filters" ref="dt" rowGroupMode="subheader" groupRowsBy="dataAbsensiFix.created_at" paginator :rows="35" :value="dataAbsensiFix" removableSort scrollable  size="small" stripedRows tableStyle="min-width: 50rem" class="mt-4">
                 <template #header>
                     <div class="flex justify-between items-center mb-5">
                         <IconField>
@@ -117,8 +119,10 @@ const exportCSV = () =>
                     </div>
                     <!-- jumlah kehadiran -->
                      <div class="flex flex-col gap-y-2">
-                         <span class="text-lg font-bold">MATA PELAJARAN : {{ namaMapel }}</span>
-                         <span class="text-lg font-bold">KELAS : {{ namaKelas }}</span>
+                         <span class="font-semibold">MATA PELAJARAN : {{ pageProps?.mapel.namaMapel }}</span>
+                         <span class="font-semibold">GURU : {{ pageProps?.mapel.namaGuru }}</span>
+                         <span class="font-semibold">KELAS : {{ pageProps?.kelas.namaKelas }}</span>
+                         <span class="font-semibold">WALI KELAS : {{ pageProps?.kelas.waliKelas }}</span>
                      </div>
                 </template>
                 <template #empty>
@@ -135,6 +139,28 @@ const exportCSV = () =>
                 <Column field="sakit" sortable header="Sakit" class="min-w-[100px]"/>
                 <Column field="izin" sortable header="Izin" class="min-w-[100px]"/>
                 <Column field="alpha" sortable header="Alpha" class="min-w-[100px]"/>
+                <ColumnGroup type="footer">
+                    <Row>
+                        <Column :colspan="6"/>
+                        <Column footer="Hadir :" :colspan="1"/>
+                        <Column :footer="pageProps?.statistikAbsen?.Hadir" :colspan="4"/>
+                    </Row>
+                    <Row>
+                        <Column :colspan="6"/>
+                        <Column footer="Sakit :" :colspan="2"/>
+                        <Column :footer="pageProps?.statistikAbsen?.Sakit" :colspan="4"/>
+                    </Row>
+                    <Row>
+                        <Column :colspan="6"/>
+                        <Column footer="Izin :" :colspan="3"/>
+                        <Column :footer="pageProps?.statistikAbsen?.Izin" :colspan="4"/>
+                    </Row>
+                    <Row>
+                        <Column :colspan="6"/>
+                        <Column footer="Alpha :" :colspan="4"/>
+                        <Column :footer="pageProps?.statistikAbsen?.Alpha" :colspan="4"/>
+                    </Row>
+                </ColumnGroup>
             </DataTable>
         </template>
     </GuruLayout>

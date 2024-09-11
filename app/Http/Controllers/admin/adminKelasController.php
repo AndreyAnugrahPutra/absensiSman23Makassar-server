@@ -18,12 +18,15 @@ class adminKelasController extends adminController
     //
     public function kelasPage()
     {
-        $dataKelas = Kelas::withCount('siswa')->get();
+        $tahunAjarActive = TahunAjar::where('is_active',1)->first();
+        $tahunAjarFix = $tahunAjarActive->mulai.'/'.$tahunAjarActive->selesai;
+
+        $dataKelas = Kelas::where('tahun_ajaran',$tahunAjarFix)->withCount('siswa')->get();
         $dataGuru = User::where('level', 2)->whereNotIn('user_id', function($query) {
             $query->select('id_wali_kelas')->from('tb_kelas');
         })->select('user_id','nama')->get();
-        // $dataGuru = User::where('level', 2)->where('user_id','!=','tb_kelas.id_wali_kelas')->select('user_id','nama')->get();
         $dataTahunAjar = TahunAjar::select('mulai','selesai')->get();
+        
         return Inertia::render('Admin/Kelas/Index', [
             'dataGuru' => $dataGuru, 
             'dataKelas' => $dataKelas,
