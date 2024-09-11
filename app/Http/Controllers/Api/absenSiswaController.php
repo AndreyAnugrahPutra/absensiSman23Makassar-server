@@ -76,7 +76,7 @@ class absenSiswaController extends Controller
     {
         //
         $siswa = Siswa::where('email',$email)->first();
-        $dataAbsensi = FormAbsensi::where('tb_form_absen.id_jadwal',$id_jadwal)->join('tb_absensi','tb_form_absen.id_form','=','tb_absensi.id_form')->join('tb_mapel','tb_form_absen.id_mapel','=','tb_mapel.id_mapel')->select('tb_absensi.id_form','tb_absensi.nama_siswa','tb_absensi.lampiran_file','tb_absensi.lampiran_path','tb_absensi.status','tb_absensi.waktu_absen','tb_absensi.created_at','tb_absensi.deskripsi','tb_mapel.nama_mapel','tb_mapel.nama_guru','tb_form_absen.kelas')->where('tb_absensi.id_siswa',$siswa->user_id)->get();
+        $dataAbsensi = FormAbsensi::where('tb_form_absen.id_jadwal',$id_jadwal)->join('tb_absensi','tb_form_absen.id_jadwal','=','tb_absensi.id_jadwal')->join('tb_mapel','tb_form_absen.id_mapel','=','tb_mapel.id_mapel')->select('tb_absensi.nama_siswa','tb_absensi.lampiran_file','tb_absensi.lampiran_path','tb_absensi.status','tb_absensi.waktu_absen','tb_absensi.created_at','tb_absensi.deskripsi','tb_mapel.nama_mapel','tb_mapel.nama_guru','tb_form_absen.kelas')->where('tb_absensi.id_siswa',$siswa->user_id)->orderBy('tb_absensi.created_at','DESC')->get();
 
         if($dataAbsensi->count() > 0)
         {
