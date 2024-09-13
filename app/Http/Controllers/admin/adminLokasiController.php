@@ -13,7 +13,7 @@ class adminLokasiController extends adminController
 {
     //
     public function lokasiPage()
-    {
+    {    
         $dataLokasi = LokasiAbsen::select('id_lokasi','nama_lokasi','alamat','latitude','longitude','radius')->first();
         return Inertia::render('Admin/Lokasi/Index', ['dataLokasi' => $dataLokasi]);
     }
@@ -21,7 +21,7 @@ class adminLokasiController extends adminController
     public function createDataLokasi(Request $request)
     {
        
-        $lokasiTersedia = LokasiAbsen::latest()->get();
+        $lokasiTersedia = LokasiAbsen::latest()->first();
 
         if($lokasiTersedia->count() > 0)
         {
@@ -34,11 +34,11 @@ class adminLokasiController extends adminController
                 'updated_at' => Carbon::now('Asia/Makassar'),
             ];
 
-            $updateLokasi = $lokasiTersedia[0]->update($updateData);
+            $updateLokasi = $lokasiTersedia->update($updateData);
 
             if($updateLokasi)
             {
-                return redirect()->back()->with([
+                return back()->with([
                     'notif_status' => 'success',
                     'message' => 'Data Lokasi berhasil diupdate',
                     'notif_show' => true,
@@ -46,7 +46,7 @@ class adminLokasiController extends adminController
             }
             else
             {
-                return redirect()->back()->with([
+                return back()->with([
                     'notif_status' => 'failed',
                     'message' => 'Data Lokasi gagal diupdate!',
                     'notif_show' => true,

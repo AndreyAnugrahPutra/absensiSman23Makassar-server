@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { router,useForm } from '@inertiajs/vue3'
 
 import AdminLayout from '@/Layouts/Admin/AdminLayout.vue'
 
@@ -20,16 +20,16 @@ const pageProps = defineProps({dataLokasi : Object, flash : Object})
 
 onMounted(()=> {
 
-    checkNotif()
-
-    initialMap.value = L.map('map', {zoomControl: true,zoom:1,zoomAnimation:false,fadeAnimation:true,markerZoomAnimation:true}).on('click', addMarker).setView([-5.1410421677943, 119.47451892178], 19);
+    initialMap.value = L.map('map', {zoomControl: true,zoom:1,zoomAnimation:false,fadeAnimation:true,markerZoomAnimation:true}).on('click', addMarker).setView([pageProps.dataLokasi?.latitude ? pageProps.dataLokasi?.latitude : -5.1410421677943, pageProps.dataLokasi?.longitude ? pageProps.dataLokasi?.longitude : 119.47451892178], 19);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19, 
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(initialMap.value);
     
-    marker = L.marker([-5.1410421677943, 119.47451892178], {draggable : true}).addTo(initialMap.value).on('dragend', updateMarker).bindPopup(form.nama_lokasi).openPopup()
-    radius = L.circle([-5.1410421677943,119.47451892178], {radius : form.radius, draggable : true}).addTo(initialMap.value)
+    marker = L.marker([pageProps.dataLokasi?.latitude ? pageProps.dataLokasi?.latitude : -5.1410421677943, pageProps.dataLokasi?.longitude ? pageProps.dataLokasi?.longitude : 119.47451892178], {draggable : true}).addTo(initialMap.value).on('dragend', updateMarker).bindPopup(form.nama_lokasi).openPopup()
+    radius = L.circle([pageProps.dataLokasi?.latitude ? pageProps.dataLokasi?.latitude : -5.1410421677943, pageProps.dataLokasi?.longitude ? pageProps.dataLokasi?.longitude : 119.47451892178], {radius : form.radius, draggable : true}).addTo(initialMap.value)
+
+    checkNotif()
 
 }); 
 
@@ -53,7 +53,7 @@ const notif_message = ref(null)
 
 const checkNotif = () =>
 {
-    if(pageProps.flash.show == true)
+    if(pageProps.flash.show)
     {
         notif_show.value = pageProps.flash.show
         notif_status.value = pageProps.flash.status
@@ -92,6 +92,9 @@ const getLocation = () =>
             lat.value = position.coords.latitude
             long.value = position.coords.longitude
             accuracy.value = position.coords.accuracy
+
+            form.latitude = position.coords.latitude
+            form.longitude = position.coords.longitude
 
             if(marker)
             {
@@ -144,9 +147,11 @@ const addMarker = (event) =>
 
 const updateMarker =  (event) =>
 {
-    console.log(event)
     lat.value = event.target._latlng.lat
     long.value = event.target._latlng.lng
+
+    form.latitude =  event.target._latlng.lat
+    form.longitude =  event.target._latlng.lng
 
     if(marker)
     {
@@ -176,11 +181,17 @@ const updateRadius = () =>
     radius = L.circle([lat.value,long.value], {radius : radiusWilayah.value, draggable : true}).addTo(initialMap.value)
 }
 
+const refreshPage = () => 
+{
+    router.visit(route('admin.lokasi.index'))
+    checkNotif()
+}
+
 const uploadLokasi = () =>
 {
-    form.post(route('admin.lokasi.create', {
-        onSuccess : setTimeout(() => checkNotif(), 800)
-    }))
+    form.post(route('admin.lokasi.create'), {
+        onSuccess : () => refreshPage()
+    })
 }
 </script>
 
